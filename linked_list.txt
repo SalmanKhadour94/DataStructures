@@ -1,0 +1,115 @@
+/******************************************************************************
+
+                            Online C Compiler.
+                Code, Compile, Run and Debug C program online.
+Write your code in this editor and press "Run" button to compile and execute it.
+
+*******************************************************************************/
+
+#include <stdio.h>
+#include<stdbool.h>
+#include<string.h>
+#include<assert.h>
+struct Rectangle{
+    unsigned int width;
+    unsigned int height;
+    struct Rectangle*next;
+};
+void setwidthAndheight(struct Rectangle*rectangle, unsigned int width,unsigned int height){
+    rectangle->width=width;
+    rectangle->height=height;
+    rectangle->next=NULL;
+  
+}
+static struct Rectangle*head=NULL;
+void addrectangle(struct Rectangle*rectangle){
+    
+    if(head==NULL){
+        head=rectangle;
+        
+        return;
+    }
+    struct Rectangle*tem=head;
+    while(tem!=NULL){
+        if(tem->next==NULL){
+            tem->next=rectangle;
+            
+            return;
+        }
+        tem=tem->next;
+         }
+         
+}
+size_t printRectangles(void){
+    struct Rectangle*tem=head;
+    size_t rectanglecount=0;
+    while(tem!=NULL){
+        printf("heigh %u,width %u\n",tem->height,tem->width);
+        rectanglecount++;
+         tem=tem->next;
+        
+    }
+   
+    
+    return rectanglecount;
+}
+unsigned int getmaxarea(void){
+    if(head==NULL){
+        return 0;
+        
+    }
+        struct Rectangle*tem=head;
+        unsigned int area=0;
+        unsigned int maxarea=0;
+        while(tem!=NULL){
+            area=tem->width*tem->height;
+            if(area>maxarea){
+                maxarea=area;
+            }
+             tem=tem->next;
+        
+            
+        }
+        
+        return maxarea;
+}
+void deleterectangle(unsigned int width,unsigned int height){
+    struct Rectangle*tem=head;
+    if(head->width==width&&head->height==height){
+        head=tem->next;
+        return;
+    }
+    
+    while(tem!=NULL){
+        if(tem->next->width==width&&tem->next->height==height){
+            if(tem->next->next==NULL){
+                tem->next=NULL;
+                return;
+            }
+             tem->next=tem->next->next;
+             return;
+        }
+        tem=tem->next;
+    }
+    
+}
+
+int main()
+{
+    struct Rectangle node1,node2,node3,node4;
+    setwidthAndheight(&node1,20,40);
+     setwidthAndheight(&node2,30,30);
+      setwidthAndheight(&node3,70,10);
+       setwidthAndheight(&node4,10,80);
+       addrectangle(&node1);
+         addrectangle(&node2);
+           addrectangle(&node3);
+             addrectangle(&node4);
+  
+    deleterectangle(10,80);
+      unsigned int maxarea=getmaxarea();
+     unsigned int number=printRectangles();
+    printf("number of nodes %u\n",number);
+        printf("maxarea is %u",maxarea);
+    return 0;
+}

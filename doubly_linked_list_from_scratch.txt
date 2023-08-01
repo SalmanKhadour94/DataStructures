@@ -1,0 +1,151 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <assert.h>
+
+// The following structure describes one item of a doubly linked list 
+struct Pair {
+    const char* key;
+    int value;
+    struct Pair* next;
+    struct Pair* prev;
+};
+
+// (1) Writing a setPair function that will set the key and value for a given pair .
+void setPair(struct Pair* pair, const char* key, int value) {
+pair->key=key;
+pair->value=value;
+pair->next=NULL;
+pair->prev=NULL;
+
+
+}
+
+
+// (2) Writing an addPairToList function that adds a list of pairs starting with the item pointed to by the head pointer
+static struct Pair* head = NULL; 
+void addPairToList(struct Pair* newPair) {
+    struct Pair*temp=head;
+    if(head==NULL){
+        head=newPair;
+        return;
+    }
+    while(temp!=NULL){
+        if(temp->next==NULL){
+            temp->next=newPair;
+            newPair->prev=temp;
+            return;
+        }
+        temp=temp->next;
+        
+    }
+}
+	
+
+
+	// TODO (2):
+
+
+
+// (3)Writing a function printAllPairs that will print to stdout one by one,in the order of adding elements,
+// The function is to return the sum of the 'value' values of all the elements of the found pairs in the list.
+
+int printAllPairs(void) {
+int sum=0;
+struct Pair*temp=head;
+while(temp!=NULL){
+    printf("the list contains %s,%i \n " ,temp->key,temp->value);
+    sum=sum+1;
+    temp=temp->next;
+    
+}
+
+return sum;
+}
+
+// (4) Writing a function getValue that will search the list of pairs and return the 'value' assigned to the pair,
+// where 'key' is identical to the argument of the function.
+// If there is no pair with a matching key in the list, the function returns 0
+// In case there is more than one pair with a matching key in the list, the function returns the first pair
+// matching value
+
+int getValue(const char* key) {
+	struct Pair*temp=head;
+	while(temp!=NULL){
+	 
+	  if(strcmp(temp->key,key)==0){
+	 
+	       return temp->value;
+	    }
+	    temp=temp->next;
+	}
+
+
+return  0;
+}
+
+// Writing a function deletePair that will remove the nth pair from the list.
+// n == 0 means the first pair in the list
+// If a pair with a given index exists and was successfully removed, the function returns true,
+// otherwise false
+bool deletePair(unsigned int n) {
+   	struct Pair*temp=head;
+   	int index=1;
+   if(n==0){
+         head=head->next;
+         head->prev=NULL;
+         return true;
+       
+   }
+   while(temp->next!=NULL){
+   	    if(index==n&&temp->next==NULL){
+   	        temp->prev->next=NULL;
+   	        return true;
+   	    }
+   	    if(index==n){
+   	        temp->prev->next=temp->next;
+   	        temp->next->prev=temp->prev;
+   	        return true;
+   	    }
+   	 temp=temp->next;
+   	 index++;
+   	 printf("INDEX in loop %i\n",index);
+   	    
+   	}
+   	printf("INDEX out of loop %i\n",index);
+    return false;
+
+}
+
+int main()
+{
+    printf("Testing...\n");
+
+    struct Pair item1, item2, item3, item4;
+    setPair(&item1, "one", 1);
+    setPair(&item2, "two",   2);
+    setPair(&item3, "three",  3);
+    setPair(&item4, "four",   22);
+    // adding all the pairs to the list
+    addPairToList(&item1);
+    addPairToList(&item2);
+    addPairToList(&item3);
+    addPairToList(&item4);
+    // printing test
+    assert(4 == printAllPairs()); 
+    // searching test
+    assert(1 == getValue("one"));
+    assert(2 == getValue("two"));
+    assert(3 == getValue("three"));
+    assert(0 == getValue("doesnt exist"));
+	// deleting test
+	assert(false == deletePair(4));
+	assert(true == deletePair(2));
+    assert(3 == printAllPairs());
+    assert(true == deletePair(0));
+    assert(2 == printAllPairs()); 
+
+    printf("test end\n");
+    return 0;
+
+}

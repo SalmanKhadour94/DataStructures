@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <stdbool.h>
+#include <assert.h>
+#include <string.h>
+// Making a CharRingBuffer structure so that it describe the circular buffer spanning the "data" array
+struct CharRingBuffer {
+    char data[30];
+    int count;
+    int head, tail;
+};
+
+// (2) Defining a typecalled CharRingBufferPtr that is a pointer to a CharRingBuffer structure
+typedef struct CharRingBuffer* CharRingBufferPtr;
+
+// (3) writing a function to initilize the circular buffer
+void init(CharRingBufferPtr buffer) {
+buffer->head=0;
+buffer->tail=0;
+buffer->count=0;
+}
+
+// (4) writing a function putText which will write the text string "source" to the circular buffer,
+// The function will return 'true' if the given string was successfully typed, 'false' otherwise.
+bool putText(CharRingBufferPtr buffer, const char* source) {
+   int source_len=strlen(source);
+   int source_idx=0;
+  if(source_len<=(30-buffer->count))
+  {
+        while(source[source_idx]!='\0')
+        {
+            buffer->data[buffer->tail]=source[source_idx++];
+            buffer->tail=(buffer->tail+1)%30;
+            buffer->count++;
+        }
+        buffer->data[buffer->tail]='\0';
+        buffer->tail=(buffer->tail+1)%30;
+        buffer->count++;
+	    return true;
+  }
+  return false;
+  
+}
+
+// (5) Writing a function that will extract (read and delete) the text strings entered into it from the buffer.
+// The read string is copied to 'destination'
+// The function will return 'true' if any string was extracted, 'false' otherwise.
+bool getText(CharRingBufferPtr buffer, char* destination) {
+    if(buffer->head==buffer->tail)
+    {
+        return false;
+        
+    }
+    int destination_idx=0;
+    while(buffer->data[buffer->head]!='\0')
+    {
+        destination[destination_idx++]=buffer->data[buffer->head];
+        buffer->head=(buffer->head+1)%30;
+        buffer->count--;
+    }
+    destination[destination_idx]=buffer->data[buffer->head];
+    buffer->head=(buffer->head+1)%30;
+    buffer->count--;
+	return true;
+}
+
+// (6) Writing a function that will return the number of text strings stored in a circular buffer without changing the buffer itself.
+int getCount(CharRingBufferPtr buffer) {
+    int head_cpy=buffer->head;
+    int str_count=0;
+    while(head_cpy!=buffer->tail)
+    {
+        if(buffer->data[head_cpy]=='\0')
+        {
+            str_count++;
+        }
+        
+        head_cpy++;
+    }
+    return str_count;
+}
+
+
+int main()
+{
+    printf("Testing...\n");
+
+    struct CharRingBuffer buffer;
+    char text[100];
+
+    // testing initialization.
+    init(&buffer);
+    // the buffer should be empty first
+    assert(0 == getCount(&buffer));
+    assert(false == getText(&buffer, text));
+
+    // adding 2 texts
+    assert(true == putText(&buffer, "hello world"));
+    assert(true == putText(&buffer, "good morning"));
+    assert(2 == getCount(&buffer));
+    // taking out the first
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "hello world"));
+    assert(1 == getCount(&buffer));
+    // taking out the second
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "good morning"));
+    // the buffer should be empty now
+    assert(0 == getCount(&buffer));
+    assert(false == getText(&buffer, text));
+
+    // adding 3 texts
+    assert(true == putText(&buffer, "12345678"));
+    assert(true == putText(&buffer, "abcdefgh"));
+    assert(true == putText(&buffer, "ijklmnop"));
+    // the forth will not appear...
+    assert(false == putText(&buffer, "qrstuvwx"));
+    // ..until we make a place for it:
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "12345678"));
+    assert(true == putText(&buffer, "qrstuvwx"));
+
+    // taking out the three texts in order
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "abcdefgh"));
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "ijklmnop"));
+    assert(true == getText(&buffer, text));
+    assert(0 == strcmp(text, "qrstuvwx"));
+
+    // the buffer will be empty now
+    assert(0 == getCount(&buffer));
+    assert(false == getText(&buffer, text));
+
+    printf("test finished\n");
+    return 0;
+}
